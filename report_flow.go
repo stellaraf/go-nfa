@@ -7,7 +7,7 @@ import (
 
 	"github.com/c-robinson/iplib/v2"
 	"github.com/golang-module/carbon/v2"
-	"github.com/stellar/go-nfa/flow"
+	"github.com/stellaraf/go-nfa/flow"
 )
 
 func CreatePrefixRange(prefix string) (string, error) {

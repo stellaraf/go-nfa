@@ -3,8 +3,8 @@ package nfa_test
 import (
 	"testing"
 
-	"github.com/stellar/go-nfa"
-	"github.com/stellar/go-nfa/internal/test"
+	"github.com/stellaraf/go-nfa"
+	"github.com/stellaraf/go-nfa/internal/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

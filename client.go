@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/go-resty/resty/v2"
-	"github.com/stellar/go-nfa/flow"
+	"github.com/stellaraf/go-nfa/flow"
 )
 
 type Client struct {

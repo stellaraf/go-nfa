@@ -3,7 +3,7 @@ package flow_test
 import (
 	"testing"
 
-	"github.com/stellar/go-nfa/flow"
+	"github.com/stellaraf/go-nfa/flow"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

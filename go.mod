@@ -1,4 +1,4 @@
-module github.com/stellar/go-nfa
+module github.com/stellaraf/go-nfa
 
 go 1.22.1
 
