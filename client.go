@@ -74,7 +74,9 @@ func (client *Client) PercentileQuery(prefixes, exclude []string, percentile uin
 func New(options ...OptionSetter) (*Client, error) {
 	r := resty.New()
 	opts := &Options{
-		Insecure: false,
+		Insecure:   false,
+		RetryCount: 5,
+		RetryTime:  time.Second * 3,
 	}
 	for _, setter := range options {
 		setter(opts)
@@ -112,8 +114,9 @@ func New(options ...OptionSetter) (*Client, error) {
 		return nil
 	})
 
-	r.SetRetryCount(5)
-	r.SetRetryWaitTime(time.Second * 3)
+	r.SetRetryCount(opts.RetryCount)
+	r.SetRetryWaitTime(opts.RetryTime)
+	r.SetRetryMaxWaitTime(opts.RetryTime * time.Duration(opts.RetryCount))
 
 	r.AddRetryCondition(func(res *resty.Response, _ error) bool {
 		return res.StatusCode() == http.StatusAccepted

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
+	"time"
 )
 
 var ErrCfgNoUsername = errors.New("username required")
@@ -12,10 +13,12 @@ var ErrCfgNoPassword = errors.New("username required")
 var ErrCfgNoURL = errors.New("URL required")
 
 type Options struct {
-	Insecure bool
-	URL      *url.URL
-	Username string
-	Password string
+	Insecure   bool
+	URL        *url.URL
+	Username   string
+	Password   string
+	RetryCount int
+	RetryTime  time.Duration
 }
 
 func (opts *Options) Validate() error {
@@ -58,6 +61,20 @@ func Password(p string) OptionSetter {
 func URL(u *url.URL) OptionSetter {
 	return func(opts *Options) {
 		opts.URL = u
+	}
+}
+
+// RetryCount sets the number of times to retry requests.
+func RetryCount(c int) OptionSetter {
+	return func(opts *Options) {
+		opts.RetryCount = c
+	}
+}
+
+// RetryTime sets the amount of time to wait between retries.
+func RetryTime(d time.Duration) OptionSetter {
+	return func(opts *Options) {
+		opts.RetryTime = d
 	}
 }
 
