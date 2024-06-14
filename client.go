@@ -112,8 +112,8 @@ func New(options ...OptionSetter) (*Client, error) {
 		return nil
 	})
 
-	r.SetRetryCount(2)
-	r.SetRetryWaitTime(time.Second * 5)
+	r.SetRetryCount(5)
+	r.SetRetryWaitTime(time.Second * 3)
 
 	r.AddRetryCondition(func(res *resty.Response, _ error) bool {
 		return res.StatusCode() == http.StatusAccepted
