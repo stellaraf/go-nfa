@@ -21,6 +21,11 @@ type AuthResponse struct {
 	} `json:"result"`
 }
 
+type ProcessingResponse struct {
+	Code        string `json:"code"`
+	Description string `json:"description"`
+}
+
 func getAuthCookies(u *url.URL, user, pass string) ([]*http.Cookie, error) {
 	req := resty.New().R().
 		SetBody(map[string]string{"username": user, "password": pass}).
@@ -106,7 +111,17 @@ func New(options ...OptionSetter) (*Client, error) {
 		}
 		return nil
 	})
-	r.AddRetryCondition(func(res *resty.Response, err error) bool {
+
+	r.RetryWaitTime = time.Second * 5
+
+	r.AddRetryCondition(func(res *resty.Response, _ error) bool {
+		data, ok := res.Result().(*ProcessingResponse)
+		if !ok {
+			return false
+		}
+		return data.Code == "accepted"
+	})
+	r.AddRetryCondition(func(res *resty.Response, _ error) bool {
 		return res.StatusCode() == http.StatusUnauthorized
 	})
 	r.AddRetryHook(func(res *resty.Response, err error) {
