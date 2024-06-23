@@ -22,8 +22,6 @@ type RuleVal interface {
 }
 
 func AddRule[T RuleVal](f *Filter, key string, op Operator, value T) *Filter {
-	// r := RuleP{key, op, value}
-	// f.rules = append(f.rules, r)
 	f.Rules = append(f.Rules, map[string]any{"key": key, "comparisonOperator": op.String(), "value": value})
 	return f
 }
