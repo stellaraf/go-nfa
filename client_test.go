@@ -26,7 +26,7 @@ func TestClient_PercentileQuery(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, client)
 
-	res, err := client.PercentileQuery([]string{"192.0.2.0/28"}, []string{"192.0.2.0/24"}, 95)
+	res, err := client.PercentileQuery(test.Env.Test.Prefixes, test.Env.Test.Exclude, 95)
 	require.NoError(t, err)
-	assert.GreaterOrEqual(t, uint64(100), res.PercentileValue)
+	assert.GreaterOrEqual(t, res.PercentileValue, uint64(100))
 }
