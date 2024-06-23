@@ -1,6 +1,7 @@
 package nfa
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -25,6 +26,8 @@ type ProcessingResponse struct {
 	Code        string `json:"code"`
 	Description string `json:"description"`
 }
+
+var ErrZeroPercentile = errors.New("percentile value was zero; retry query")
 
 func getAuthCookies(u *url.URL, user, pass string) ([]*http.Cookie, error) {
 	req := resty.New().R().
@@ -56,7 +59,12 @@ func (client *Client) PercentileQuery(prefixes, exclude []string, percentile uin
 	if err != nil {
 		return nil, err
 	}
-	req := client.http.R().SetQueryParams(qp).SetResult(&flow.ResPercentileQuery{})
+	req := client.http.R().
+		SetQueryParams(qp).
+		SetResult(&flow.ResPercentileQuery{}).
+		AddRetryCondition(func(res *resty.Response, _ error) bool {
+			return res.StatusCode() == http.StatusAccepted
+		})
 	res, err := req.Get("/reports/flows")
 	if err != nil {
 		return nil, err
@@ -67,6 +75,9 @@ func (client *Client) PercentileQuery(prefixes, exclude []string, percentile uin
 	data, ok := res.Result().(*flow.ResPercentileQuery)
 	if !ok {
 		return nil, fmt.Errorf("failed to parse response")
+	}
+	if data.PercentileValue == uint64(0) {
+		return nil, ErrZeroPercentile
 	}
 	return data, nil
 }
@@ -118,9 +129,6 @@ func New(options ...OptionSetter) (*Client, error) {
 	r.SetRetryWaitTime(opts.RetryTime)
 	r.SetRetryMaxWaitTime(opts.RetryTime * time.Duration(opts.RetryCount))
 
-	r.AddRetryCondition(func(res *resty.Response, _ error) bool {
-		return res.StatusCode() == http.StatusAccepted
-	})
 	r.AddRetryCondition(func(res *resty.Response, _ error) bool {
 		return res.StatusCode() == http.StatusUnauthorized
 	})
