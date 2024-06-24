@@ -1,7 +1,6 @@
 package nfa
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -26,8 +25,6 @@ type ProcessingResponse struct {
 	Code        string `json:"code"`
 	Description string `json:"description"`
 }
-
-var ErrZeroPercentile = errors.New("percentile value was zero; retry query")
 
 func getAuthCookies(u *url.URL, user, pass string) ([]*http.Cookie, error) {
 	req := resty.New().R().
@@ -63,7 +60,11 @@ func (client *Client) PercentileQuery(prefixes, exclude []string, percentile uin
 		SetQueryParams(qp).
 		SetResult(&flow.ResPercentileQuery{}).
 		AddRetryCondition(func(res *resty.Response, _ error) bool {
-			return res.StatusCode() == http.StatusAccepted
+			if res.StatusCode() == http.StatusAccepted {
+				time.Sleep(time.Second * 2)
+				return true
+			}
+			return false
 		})
 	res, err := req.Get("/reports/flows")
 	if err != nil {
@@ -75,9 +76,6 @@ func (client *Client) PercentileQuery(prefixes, exclude []string, percentile uin
 	data, ok := res.Result().(*flow.ResPercentileQuery)
 	if !ok {
 		return nil, fmt.Errorf("failed to parse response")
-	}
-	if data.PercentileValue == uint64(0) {
-		return nil, ErrZeroPercentile
 	}
 	return data, nil
 }
