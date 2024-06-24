@@ -37,7 +37,7 @@ func (p *PercentileData) UnmarshalJSON(b []byte) error {
 
 type ResPercentileQuery struct {
 	Results         []QueryResults   `json:"results"`
-	PercentileValue uint64           `json:"percentileValue"`
+	PercentileValue float64          `json:"percentileValue"`
 	QueryParams     map[string]any   `json:"queryParams"`
 	Title           string           `json:"title"`
 	Header          []string         `json:"header"`

@@ -57,8 +57,12 @@ func NewPercentileQuery(prefixes []string, exclusions []string, p uint8) (*flow.
 		EndTime:           now.StdTime(),
 		Percentile:        p,
 		AggregateBy:       flow.Octets,
-		AggregateFunction: flow.Avg,
+		RateUnit:          flow.Seconds,
+		AggregateFunction: flow.Sum,
 		GroupBy:           flow.TS,
+		Order:             flow.Descending,
+		OrderBy:           flow.TS,
+		Top:               10,
 	}
 	srcFilter := flow.NewSubFilter(flow.AND)
 	srcFilter = flow.AddSubRule(srcFilter, flow.SrcAddr, flow.EQ, include)

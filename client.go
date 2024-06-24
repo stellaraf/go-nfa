@@ -2,6 +2,7 @@ package nfa
 
 import (
 	"fmt"
+	"math"
 	"net/http"
 	"net/url"
 	"time"
@@ -11,7 +12,8 @@ import (
 )
 
 type Client struct {
-	http *resty.Client
+	http      *resty.Client
+	precision uint
 }
 
 type AuthResponse struct {
@@ -47,6 +49,11 @@ func getAuthCookies(u *url.URL, user, pass string) ([]*http.Cookie, error) {
 	return res.Cookies(), nil
 }
 
+func (client *Client) roundPercentile(v float64) float64 {
+	bits := v * 8
+	return math.Round(bits*float64(client.precision)) / float64(client.precision)
+}
+
 func (client *Client) PercentileQuery(prefixes, exclude []string, percentile uint8) (*flow.ResPercentileQuery, error) {
 	q, err := NewPercentileQuery(prefixes, exclude, percentile)
 	if err != nil {
@@ -77,6 +84,7 @@ func (client *Client) PercentileQuery(prefixes, exclude []string, percentile uin
 	if !ok {
 		return nil, fmt.Errorf("failed to parse response")
 	}
+	data.PercentileValue = client.roundPercentile(data.PercentileValue)
 	return data, nil
 }
 
@@ -86,6 +94,7 @@ func New(options ...OptionSetter) (*Client, error) {
 		Insecure:   false,
 		RetryCount: 5,
 		RetryTime:  time.Second * 3,
+		Precision:  100,
 	}
 	for _, setter := range options {
 		setter(opts)
@@ -101,7 +110,8 @@ func New(options ...OptionSetter) (*Client, error) {
 		return nil, err
 	}
 	client := &Client{
-		http: r,
+		http:      r,
+		precision: opts.Precision,
 	}
 	r.SetCookies(cookies)
 	r.OnBeforeRequest(func(rc *resty.Client, req *resty.Request) error {

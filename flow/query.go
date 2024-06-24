@@ -65,7 +65,7 @@ type QueryParameters struct {
 	// mpls-post-top-label-exp, pseudo-wire-id, pseudo-wire-type, pseudo-wire-control-word,
 	// community, l3-ip-min-total-length, l3-ip-max-total-length, l3-ip-total-length,
 	// l3-ip-min-ttl, l3-ip-max-ttl, l3-ip-ttl, l4-tcp-flag-count, flow-role, application-name
-	OrderBy string `json:"order-by,omitempty"`
+	OrderBy string `json:"orderby,omitempty"`
 
 	// descending, ascending
 	Order string `json:"order,omitempty"`
@@ -128,8 +128,6 @@ func (q *QueryParameters) MarshalQuery() (map[string]string, error) {
 		}
 		ms[k] = string(b)
 	}
-	// ms["start-time"] = q.StartTime.Format("2006-01-02T15:04:05-0700")
-	// ms["end-time"] = q.EndTime.Format("2006-01-02T15:04:05-0700")
 	ms["start-time"] = q.StartTime.Format("2006-01-02T15:04:05Z0700")
 	ms["end-time"] = q.EndTime.Format("2006-01-02T15:04:05Z0700")
 	return ms, nil

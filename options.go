@@ -19,6 +19,7 @@ type Options struct {
 	Password   string
 	RetryCount int
 	RetryTime  time.Duration
+	Precision  uint
 }
 
 func (opts *Options) Validate() error {
@@ -75,6 +76,13 @@ func RetryCount(c int) OptionSetter {
 func RetryTime(d time.Duration) OptionSetter {
 	return func(opts *Options) {
 		opts.RetryTime = d
+	}
+}
+
+// Decimals sets the precision to round percentile values. 100 = 2 decimal places.
+func Precision(p uint) OptionSetter {
+	return func(opts *Options) {
+		opts.Precision = p
 	}
 }
 
